@@ -1,56 +1,65 @@
-const Todo = require('../models/todoModels')
+const Todo = require("../models/todoModels");
 
-// Get all todos
-exports.getTodos = async (req, res) => {
-  try {
-    const todos = await Todo.find()
-    res.json(todos)
-  } catch (err) {
-    res.status(500).json({ message: err.message })
-  }
+exports.getAllTodos = async (req, res) => {
+    try {
+        const todos = await Todo.find();
+        res.status(200).json(todos);
+
+    } catch (err) {
+        res.status(500).json({message : err.message})
+    }
 }
 
-// Create a todo
 exports.createTodo = async (req, res) => {
-  try {
-    const todo = new Todo({
-      description: req.body.description
-    })
-    const newTodo = await todo.save()
-    res.status(201).json(newTodo)
-  } catch (err) {
-    res.status(400).json({ message: err.message })
-  }
+    try {
+        const {description} = req.body;
+
+        if (!description) return res.status(400).json({message: "pls provide description"});
+
+        const newTodo = new Todo({
+            description,
+            completed: false,
+        })
+
+        const savedTodo = await newTodo.save();
+        res.status(201).json(savedTodo);
+    } catch (err) {
+        res.status(500).json({message : err.message})
+    }
 }
 
-// Update a todo
 exports.updateTodo = async (req, res) => {
-  try {
-    const todo = await Todo.findById(req.params.id)
-    if (!todo) return res.status(404).json({ message: 'Todo not found' })
-    
-    if (req.body.description != null) {
-      todo.description = req.body.description
+    try {
+        const {id} = req.params;
+        const {description, completed} = req.body;
+
+        const updates = {}
+        if (description !== undefinded) updates.description = description;
+        if (completed !== undefined) updates.completed = completed;
+        
+        const updateTodo = await Todo.findByIdAndUpdate(id, updates , {
+            new: true,
+            runValidators: true,
+        })
+
+        if (!updateTodo) return res.status(404).json({message: "Todo not found"});
+
+        res.status(200).json(updateTodo);
+    } catch (err) {
+        res.status(500).json({message : err.message});
     }
-    if (req.body.completed != null) {
-      todo.completed = req.body.completed
-    }
-    
-    const updatedTodo = await todo.save()
-    res.json(updatedTodo)
-  } catch (err) {
-    res.status(400).json({ message: err.message })
-  }
 }
 
-// Delete a todo
 exports.deleteTodo = async (req, res) => {
-  try {
-    const todo = await Todo.findById(req.params.id)
-    if (!todo) return res.status(404).json({ message: 'Todo not found' })
-    await todo.remove()
-    res.json({ message: 'Todo deleted' })
-  } catch (err) {
-    res.status(500).json({ message: err.message })
-  }
+    try {
+        const {id} = req.params;
+
+        const deletedTodo = await Todo.findByIdAndDelete(id);
+
+        if (!deletedTodo) return res.status(404).json({message: "Todo not found"});
+
+        res.status(200).json({message: "Todo deleted successfully"});
+    } catch (err) {
+        res.status(500).json({message : err.message});
+    }
 }
