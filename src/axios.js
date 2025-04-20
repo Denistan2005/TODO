@@ -1,36 +1,30 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:5000/api/todos/"; // Updated API URL
+import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: API_URL,
-    headers : {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        "Access-Control-Allow-Credentials": true,
-    }
-})
+  baseURL: '/api/todos/',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 export const fetchTodo = async () => {
-    try {
-        const response = await axiosInstance.get("/");
-        return response.data;
-    } catch (err) {
-        console.error("Error fetching: ", err)
-        throw err
-    }
-}
+  try {
+    const response = await axiosInstance.get('');
+    return response.data;
+  } catch (err) {
+    console.error('Error fetching todos:', err.message, err.config);
+    throw err;
+  }
+};
 
 export const createTodo = async (description) => {
-    try {
-        const response = await axiosInstance.post("/", {description});
-        return response.data;
-    } catch (err) {
-        console.error("Error creating: ", err)
-        throw err
-    }
-}
+  try {
+    const response = await axiosInstance.post('/', { description });
+    return response.data;
+  } catch (err) {
+    console.error('Error creating todo:', err.message, err.config);
+    throw err;
+  }
+};
 
-export default axiosInstance
+export default axiosInstance;

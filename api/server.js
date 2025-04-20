@@ -1,46 +1,51 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const connectDB = require("./config/db");
+const express = require('express');
+const cors = require('cors');
+const dotenv = require('dotenv');
+const connectDB = require('./config/db');
+const todoRoutes = require('./views/todoRoutes');
 
-const todoRoutes = require("./views/todoRoutes")
+// Load .env file
+dotenv.config({ path: '/workspaces/TODO-MERN/api/.env' });
 
-dotenv.config();
+// Debug: Log environment variables
+console.log('MONGO_URI:', process.env.MONGO_URI);
+console.log('PORT:', process.env.PORT);
+
+// Check if MONGO_URI is defined
+if (!process.env.MONGO_URI) {
+  console.error('Error: MONGO_URI is not defined in .env file');
+  process.exit(1);
+}
 
 connectDB();
 
 const app = express();
 
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
-// app.use(cors({
-//     origin: 'http://localhost:5173/', // Replace with the actual client's origin
-//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-//     credentials: true, // Allow credentials if needed
-//     optionsSuccessStatus: 200 // Some legacy browsers (IE11, various SmartTVs) choke on 204
-// }));
+app.use(express.urlencoded({ extended: true }));
 
-app.use(cors());
+// Configure CORS for frontend origins
+app.use(cors({
+    origin: [
+      'http://localhost:5173',
+      'https://probable-engine-v6rgp5v4r99hr49-5173.app.github.dev',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+  }));
 
-// app.use((_, res, next) => {
-//     const allowedOrigin = 'http://localhost:5173/'; // Replace with the actual client's origin
-//     res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
-//     res.setHeader('Vary', 'Origin'); // Important when dynamically setting Access-Control-Allow-Origin
-//     next();
-//   });
-
-app.get("/", (req, res) => {
-    res.json("hello world");
+app.get('/', (req, res) => {
+  res.json('hello world');
 });
 
-app.use("/api/todos", todoRoutes)
+app.use('/api/todos', todoRoutes);
 
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({message: "Something went wrong"});
-})
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong' });
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server running at PORT ${PORT}`);
-})
+  console.log(`Server running at PORT ${PORT}`);
+});

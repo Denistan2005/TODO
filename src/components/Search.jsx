@@ -1,54 +1,45 @@
-const Search = ({ search, setSearch, submitTask, tasks }) => {
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    submitTask(search)
-    setSearch('')
-  }
+import React, { useState } from 'react';
 
-  const filteredTasks = (tasks || []).filter(task =>
-    task?.description?.toLowerCase().includes(search.toLowerCase())
-  )
+const Search = ({ setSearch, submitTask }) => {
+  const [newTask, setNewTask] = useState('');
+
+  const handleAddTask = (e) => {
+    e.preventDefault();
+    if (!newTask.trim()) return;
+    submitTask(newTask);
+    setNewTask('');
+  };
 
   return (
-    <div className="w-full max-w-md mx-auto mt-4">
-      <form onSubmit={handleSubmit} className="flex items-center relative">
-        <svg
-          className="absolute left-3 text-gray-400"
-          xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <circle cx="11" cy="11" r="8"></circle>
-          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-        </svg>
+    <div className="p-8 max-w-5xl mx-auto">
+      {/* Search Bar for Filtering Tasks */}
+      <div className="mb-6">
         <input
           type="text"
-          placeholder="Add or search tasks..."
-          value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full py-3 pl-10 pr-3 border border-gray-300 rounded-full focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-300"
+          placeholder="Search tasks..."
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600 bg-white text-gray-700 placeholder-gray-400"
         />
-      </form>
-      {search && filteredTasks.length > 0 && (
-        <div className="mt-2 bg-white shadow-md rounded-lg p-4 max-h-40 overflow-y-auto">
-          {filteredTasks.map(task => (
-            <p key={task._id} className="text-gray-700 py-1">
-              {task.description}
-            </p>
-          ))}
-        </div>
-      )}
-      {search && filteredTasks.length === 0 && (
-        <div className="mt-2 text-gray-500 text-center">No tasks found</div>
-      )}
-    </div>
-  )
-}
+      </div>
 
-export default Search
+      {/* Form for Adding New Task */}
+      <form onSubmit={handleAddTask} className="flex gap-4 items-center">
+        <input
+          type="text"
+          value={newTask}
+          onChange={(e) => setNewTask(e.target.value)}
+          placeholder="Add a new task"
+          className="flex-grow p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600 focus:border-purple-600 bg-white text-gray-700 placeholder-gray-400"
+        />
+        <button
+          type="submit"
+          className="px-6 py-3 bg-purple-600 text-white rounded-lg shadow-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2 transition-colors duration-300"
+        >
+          Add Task
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default Search;

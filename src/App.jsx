@@ -1,14 +1,13 @@
-import { useEffect, useState } from 'react'
-import './App.css'
-import Search from './components/Search'
+import { useEffect, useState } from 'react';
+import './App.css';
+import Search from './components/Search';
 import TaskPage from './components/TaskPage';
 import { createTodo, fetchTodo } from './axios';
+import axiosInstance from './axios';
 
 function App() {
   const [search, setSearch] = useState('');
-  const [tasks, setTasks] = useState(
-    JSON.parse(localStorage.getItem('tasks')) || []
-  )
+  const [tasks, setTasks] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -17,72 +16,81 @@ function App() {
         setIsLoading(true);
         const data = await fetchTodo();
         setTasks(data);
-        console.log(data)
+        console.log('Tasks:', data);
         setIsLoading(false);
-      } catch (err) { 
-        console.error("Error: ", err);
+      } catch (err) {
+        console.error('Error:', err);
       } finally {
         setIsLoading(false);
       }
-    }
+    };
 
     getTasks();
+  }, []);
 
-  }, [])
-
-  const submitTask = async (search) => {
-    if (!search.trim()) return;
+  const submitTask = async (newTask) => {
+    if (!newTask.trim()) return;
 
     try {
-      const newTask = await createTodo(search);
-      setTasks([...tasks, newTask]);
+      const newTaskData = await createTodo(newTask);
+      setTasks([...tasks, newTaskData]);
     } catch (err) {
-      console.error("Error");
+      console.error('Error creating task:', err);
     }
-  }
+  };
 
-  const completeTask = (id) => {
-    console.log(id);
-    
-    const newTasks = tasks.map(task => {
-      if (task.id === id) {
-        return { ...task, completed: !task.completed }
-      }
-      return task
-    })
-    setTasks(newTasks)
-    localStorage.setItem('tasks', JSON.stringify(newTasks))
-  }
+  const completeTask = async (id) => {
+    try {
+      console.log('Completing Task ID:', id);
+      const task = tasks.find(t => t._id === id);
+      const updatedTask = { ...task, completed: !task.completed };
+      await axiosInstance.put(`/${id}`, updatedTask);
+      setTasks(tasks.map(t => (t._id === id ? updatedTask : t)));
+    } catch (err) {
+      console.error('Error updating task:', err);
+    }
+  };
 
-  const deleteTask = (id) => {
-    const newTasks = tasks.filter(task => task.id !== id)
-    setTasks(newTasks)
+  const deleteTask = async (id) => {
+    try {
+      console.log('Deleting Task ID:', id);
+      await axiosInstance.delete(`/${id}`);
+      setTasks(tasks.filter(t => t._id !== id));
+    } catch (err) {
+      console.error('Error deleting task:', err);
+    }
+  };
 
-    localStorage.setItem('tasks', JSON.stringify(newTasks))
-  }
+  const editTask = async (id, newDescription) => {
+    try {
+      console.log('Editing Task ID:', id);
+      const updatedTask = { description: newDescription };
+      await axiosInstance.put(`/${id}`, updatedTask);
+      setTasks(tasks.map(t => (t._id === id ? { ...t, description: newDescription } : t)));
+    } catch (err) {
+      console.error('Error editing task:', err);
+    }
+  };
 
-  const editTask = (id, newDescription) => {
-    const newTasks = tasks.map(task => {
-      if (task.id === id) {
-        return { ...task, description: newDescription }
-      }
-      return task
-    })
-    setTasks(newTasks)
-    localStorage.setItem('tasks', JSON.stringify(newTasks))
-  }
+  // Filter tasks based on search input
+  const filteredTasks = tasks.filter(task =>
+    task.description.toLowerCase().includes(search.toLowerCase())
+  );
 
-  if (isLoading) return "Loading";
+  if (isLoading) return 'Loading';
 
   return (
     <div>
-      <header className='text-4xl text-black text-center py-4'>
-        TODO-MERN
-      </header>
-      <Search search={search} setSearch={setSearch} submitTask={submitTask}/>
-      <TaskPage tasks={tasks} completeTask={completeTask} deleteTask={deleteTask} editTask={editTask}/>
+      <header className="text-4xl text-black text-center py-4">📝TODO-MERN</header>
+      <Search setSearch={setSearch} submitTask={submitTask} />
+      <TaskPage
+        tasks={filteredTasks}
+        completeTask={completeTask}
+        deleteTask={deleteTask}
+        editTask={editTask}
+      />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
