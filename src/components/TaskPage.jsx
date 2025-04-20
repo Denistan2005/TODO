@@ -20,9 +20,9 @@ const TaskPage = ({ tasks, completeTask, editTask, deleteTask }) => {
   };
 
   const FilterToggle = () => (
-    <div className="flex justify-center gap-2 mb-4 p-4">
+    <div className="flex justify-center gap-3 mb-6">
       <button
-        className={`px-4 py-2 rounded-md ${
+        className={`px-4 py-2 rounded-full text-sm font-medium ${
           filter === 'all'
             ? 'bg-blue-500 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -32,7 +32,7 @@ const TaskPage = ({ tasks, completeTask, editTask, deleteTask }) => {
         All
       </button>
       <button
-        className={`px-4 py-2 rounded-md ${
+        className={`px-4 py-2 rounded-full text-sm font-medium ${
           filter === 'completed'
             ? 'bg-blue-500 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -42,7 +42,7 @@ const TaskPage = ({ tasks, completeTask, editTask, deleteTask }) => {
         Completed
       </button>
       <button
-        className={`px-4 py-2 rounded-md ${
+        className={`px-4 py-2 rounded-full text-sm font-medium ${
           filter === 'incomplete'
             ? 'bg-blue-500 text-white'
             : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -55,23 +55,22 @@ const TaskPage = ({ tasks, completeTask, editTask, deleteTask }) => {
   );
 
   return (
-    <div>
+    <div className="p-6 max-w-2xl mx-auto">
       <FilterToggle />
       {tasks.length > 0 ? (
-        <ul className="list-none p-4 space-y-4">
+        <div className="space-y-3">
           {filteredTasks.slice().reverse().map(task => (
-            <li key={task._id}>
-              <TaskItem
-                task={task}
-                completeTask={completeTask}
-                editTask={editTask}
-                deleteTask={deleteTask}
-              />
-            </li>
+            <TaskItem
+              key={task._id}
+              task={task}
+              completeTask={completeTask}
+              editTask={editTask}
+              deleteTask={deleteTask}
+            />
           ))}
-        </ul>
+        </div>
       ) : (
-        <div className="flex justify-center items-center h-screen">
+        <div className="flex justify-center items-center p-6 bg-white rounded-md shadow-sm">
           <p className="text-gray-500">No tasks available</p>
         </div>
       )}

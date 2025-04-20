@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const mongoose = require('mongoose'); // Add mongoose import
 const Todo = require('../models/todoModels');
 
 // GET all tasks
@@ -8,7 +9,7 @@ router.get('/', async (req, res) => {
     const tasks = await Todo.find();
     res.json(tasks);
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
@@ -22,7 +23,7 @@ router.post('/', async (req, res) => {
     const newTask = await task.save();
     res.status(201).json(newTask);
   } catch (err) {
-    res.status(400).json({ message: 'Bad request' });
+    res.status(400).json({ message: 'Bad request', error: err.message });
   }
 });
 
@@ -32,11 +33,13 @@ router.put('/:id', async (req, res) => {
     if (!req.params.id || !mongoose.isValidObjectId(req.params.id)) {
       return res.status(400).json({ message: 'Invalid task ID' });
     }
-    const task = await Todo.findByIdAndUpdate(
-      req.params.id,
-      { description: req.body.description, completed: req.body.completed },
-      { new: true }
-    );
+    const updates = {};
+    if (req.body.description) updates.description = req.body.description;
+    if (req.body.completed !== undefined) updates.completed = req.body.completed;
+    const task = await Todo.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+      runValidators: true,
+    });
     if (!task) return res.status(404).json({ message: 'Task not found' });
     res.json(task);
   } catch (err) {
@@ -54,7 +57,7 @@ router.delete('/:id', async (req, res) => {
     if (!task) return res.status(404).json({ message: 'Task not found' });
     res.json({ message: 'Task deleted' });
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 

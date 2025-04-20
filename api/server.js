@@ -5,7 +5,7 @@ const connectDB = require('./config/db');
 const todoRoutes = require('./views/todoRoutes');
 
 // Load .env file
-dotenv.config({ path: '/workspaces/TODO-MERN/api/.env' });
+dotenv.config({ path: '/workspaces/TODO/api/.env' });
 
 // Debug: Log environment variables
 console.log('MONGO_URI:', process.env.MONGO_URI);
@@ -35,7 +35,7 @@ app.use(cors({
   }));
 
 app.get('/', (req, res) => {
-  res.json('hello world');
+  res.json("Denistan's TODO Website");
 });
 
 app.use('/api/todos', todoRoutes);
